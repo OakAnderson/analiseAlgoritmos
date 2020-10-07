@@ -7,38 +7,26 @@ import (
 	"github.com/OakAnderson/analiseAlgoritmos/random"
 )
 
-type sortFunction func([]int)
-type sortFucntionWithReturn func([]int) []int
-type sortFunctionWithBool func([]int, bool) ([]int, error)
-
 // Sort is an object that make tests of a sort algorithm and rank their results
 type Sort struct {
-	f            sortFunction
+	f            func([]int)
 	hasParameter bool
 	ArrSize      int
 	LastResults  []time.Duration
 	LastResult   time.Duration
 }
 
-// SetSortFunction is a method that set a new function to the Sort struct
-func (s *Sort) SetSortFunction(function sortFunction) {
+// SetFunction is a method that set a new function to the Sort struct
+func (s *Sort) SetFunction(function func([]int)) {
 	s.hasParameter = false
 	s.f = function
 }
 
-// SetSortFunctionWithReturn set a function that returns the sorted array to the Sort object
-func (s *Sort) SetSortFunctionWithReturn(function sortFucntionWithReturn) {
+// SetFunctionWithReturn set a function that returns the sorted array to the Sort object
+func (s *Sort) SetFunctionWithReturn(function func([]int)[]int) {
 	s.hasParameter = false
 	s.f = func(arr []int) {
 		function(arr)
-	}
-}
-
-// SetSortFunctionWithBool set a function that wait for a bool parameter to the Sort object
-func (s *Sort) SetSortFunctionWithBool(function sortFunctionWithBool, parameter bool) {
-	s.hasParameter = true
-	s.f = func(arr []int) {
-		function(arr, parameter)
 	}
 }
 
@@ -58,7 +46,7 @@ func (s *Sort) MultipleTests(tests int) ([]time.Duration, error) {
 
 	results := make([]time.Duration, tests)
 	for i := 0; i < tests; i++ {
-		results[i] = s.UnitTest()
+		results[i] = s.SingleTest()
 	}
 	s.LastResults = results
 
@@ -76,7 +64,7 @@ func (s *Sort) MultipleTestsMean(tests int) (time.Duration, error) {
 
 	var sum time.Duration
 	for i := 0; i < tests; i++ {
-		sum += s.UnitTest()
+		sum += s.SingleTest()
 	}
 	sum = sum / time.Duration(tests)
 
@@ -95,8 +83,8 @@ func (s *Sort) Mean() time.Duration {
 	return sum / time.Duration(len(s.LastResults))
 }
 
-// UnitTest make a single test for the sort function
-func (s *Sort) UnitTest() time.Duration {
+// SingleTest make a single test for the sort function
+func (s *Sort) SingleTest() time.Duration {
 	arr := random.Ints(s.ArrSize)
 	init := time.Now()
 	s.f(arr)
